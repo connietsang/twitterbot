@@ -48,21 +48,19 @@ def searchTweets():
 
 # determines if a tweet has been ratioed
 def isRatio(tweet):
-    ratio = False
     quoteCount = tweet.public_metrics['quote_count']
     replyCount = tweet.public_metrics['reply_count']
     likeCount = tweet.public_metrics['like_count']
     if ((quoteCount > 2 * likeCount) or(replyCount > 2*likeCount)):
-        ratio = True
-    return ratio
+        return True
+    return False
 
 
 # determines if a tweet is popular
 def isPopular(tweet):
-    isPopular = False
     if (tweet.public_metrics['like_count'] > 50 or tweet.public_metrics['retweet_count'] > 20):
-        isPopular = True
-    return isPopular
+        return True
+    return False
 
 
 # takes in a list of tweets, and outputs a list of tweets which are popular and have not been ratioed
@@ -87,18 +85,11 @@ def likeAndRT():
         randomTweet = retweetable_list[randomPos]
         if (randomTweet not in retweeted):
             retweeted.add(randomTweet)
-            # placeholder for rting randomTweet
-            print(randomPos, randomTweet.id)
+            print(randomPos, randomTweet.id) # placeholder for rting randomTweet
             counter = counter + 1
             print('counter: ' + str(counter))
             time.sleep(3)
     print('out of loop')
-
-# def likeAndRT(tweet):
-#     if (not isRatio(tweet)) and (tweet.public_metrics['like_count'] > 50 or tweet.public_metrics['retweet_count'] > 20):
-#         print(tweet.id)  # placeholder
-#         # retweet
-#         # like
 
 
 def main():
