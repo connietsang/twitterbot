@@ -31,7 +31,7 @@ oauth2_user_handler = tweepy.OAuth2UserHandler(
     client_secret=CLIENT_SECRET
 )
 
-query = '(beiguang OR beigguang OR 凝北 OR 北凝 OR ningguang/beidou OR beidou/ningguang) -zhongguang -beikazu -is:retweet -is:reply'
+query = '' #whatever you wish
 
 # minimum number of likes/retweets a tweet must have to be liked/rted by bot
 min_likes = 50
