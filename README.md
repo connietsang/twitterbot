@@ -4,4 +4,4 @@ The minimum number of likes and retweets a tweet must have can be specified. Als
 
 The script can be run every week on any Unix system using crontab 
 
-My crontab specification: 0 18 * * WED cd ~/twitterbot && /usr/local/bin/python3.9 twitterbot.py
+My crontab specification: 0 18 * * WED cd ~/twitterbot && /usr/local/bin/python3.9 twitterbot.py (runs the script every Wednesday at 6PM)
