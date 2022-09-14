@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3.9
 import tweepy
 import os
 from dotenv import load_dotenv
@@ -22,8 +23,6 @@ client = tweepy.Client(
     access_token=ACCESS_TOKEN, access_token_secret=ACCESS_TOKEN_SECRET
 )
 
-# writeClient = tweepy.Client(bearer_token=BEARER_TOKEN)
-
 oauth2_user_handler = tweepy.OAuth2UserHandler(
     client_id=CLIENT_ID,
     redirect_uri="http://127.0.0.1/",
@@ -32,21 +31,23 @@ oauth2_user_handler = tweepy.OAuth2UserHandler(
     client_secret=CLIENT_SECRET
 )
 
-# access_token = oauth2_user_handler.fetch_token(
-#     ''
-# )
+query = '(beiguang OR beigguang OR 凝北 OR 北凝 OR ningguang/beidou OR beidou/ningguang) -zhongguang -beikazu -is:retweet -is:reply'
 
-# writeClient = tweepy.Client(access_token)
+# minimum number of likes/retweets a tweet must have to be liked/rted by bot
+min_likes = 50
+min_retweets = 20
 
 
 # returns a list of tweets which satisfies the search query
 def searchTweets():
-    searchResults = client.search_recent_tweets(query='(beiguang OR beigguang OR 凝北 OR 北凝 OR ningguang/beidou OR beidou/ningguang) -zhongguang -beikazu -is:retweet -is:reply',
-                                                tweet_fields='public_metrics', max_results=100, user_auth=True)
+    searchResults = client.search_recent_tweets(
+        query=query, tweet_fields='public_metrics', sort_order='relevancy', max_results=100, user_auth=True)
     return searchResults.data
 
 
 # determines if a tweet has been ratioed
+# ratio: "when a post on social media (most commonly Twitter) has more replies than retweets or likes ,
+# which likely implies that the contents of the post is controversial or unpopular."
 def isRatio(tweet):
     quoteCount = tweet.public_metrics['quote_count']
     replyCount = tweet.public_metrics['reply_count']
@@ -58,7 +59,7 @@ def isRatio(tweet):
 
 # determines if a tweet is popular
 def isPopular(tweet):
-    if (tweet.public_metrics['like_count'] > 50 or tweet.public_metrics['retweet_count'] > 20):
+    if (tweet.public_metrics['like_count'] > min_likes or tweet.public_metrics['retweet_count'] > min_retweets):
         return True
     return False
 
@@ -67,7 +68,7 @@ def isPopular(tweet):
 def retweetable(tweetlist):
     list = []
     for tweet in tweetlist:
-        if (isPopular(tweet)and not isRatio(tweet)):
+        if (isPopular(tweet) and not isRatio(tweet)):
             list.append(tweet)
     return list
 
@@ -75,21 +76,19 @@ def retweetable(tweetlist):
 def likeAndRT():
     # the set of tweets which have already been retweeted/liked
     retweeted = set()
-    tweet_list = searchTweets()
-    retweetable_list = retweetable(tweet_list)
-    length = len(retweetable_list)-1
+    retweetable_list = retweetable(searchTweets())
+    length = len(retweetable_list)
     print('length of whole list: ', length)
     counter = len(retweeted)
-    while (counter < length+1):
-        randomPos = random.randint(0, length)
+    while (counter < length):
+        randomPos = random.randint(0, length-1)
         randomTweet = retweetable_list[randomPos]
         if (randomTweet not in retweeted):
             retweeted.add(randomTweet)
-            print(randomPos, randomTweet.id) # placeholder for rting randomTweet
+            client.retweet(tweet_id=randomTweet.id, user_auth=True)
+            client.like(tweet_id=randomTweet.id,user_auth=True)
             counter = counter + 1
-            print('counter: ' + str(counter))
-            time.sleep(3)
-    print('out of loop')
+            time.sleep(14400)
 
 
 def main():
